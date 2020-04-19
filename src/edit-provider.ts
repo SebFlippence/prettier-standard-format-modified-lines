@@ -2,21 +2,30 @@ import { workspace, window, Range, TextEdit } from 'vscode';
 import { format, resolveConfig } from 'prettier';
 
 import { getPrettierParser } from './language-map';
+import { getModifiedLines } from './diffs';
 
-function fullDocumentRange (document) {
+function fullDocumentRange(document) {
   const lastLineId = document.lineCount - 1;
   return new Range(0, 0, lastLineId, document.lineAt(lastLineId).text.length);
 }
 
 export default class PrettierEditProvider {
-  getConfigPath (document) {
-    if (!document.isUntitled) {return document.fileName;};
+  getBasePath(document) {
     const { uri } = (workspace.workspaceFolders || [])[0] || {};
-    if (uri && uri.scheme === 'file') {return uri.fsPath;};
+    if (uri && uri.scheme === 'file') {
+      return uri.fsPath;
+    };
   }
 
-  getConfig (document) {
-    const opts = { editorconfig: true, useCache: false  };
+  getConfigPath(document) {
+    if (!document.isUntitled) {
+      return document.fileName;
+    };
+    return this.getBasePath(document);
+  }
+
+  getConfig(document) {
+    const opts = { editorconfig: true, useCache: false };
     const path = this.getConfigPath(document);
     const config = (path && resolveConfig.sync(path, opts)) || {};
     config.filepath = '(stdin)';
@@ -25,7 +34,7 @@ export default class PrettierEditProvider {
     return config;
   }
 
-  format (document, range) {
+  format(document, range) {
     try {
       const text = range ? document.getText(range) : document.getText();
       const newText = format(text, this.getConfig(document));
@@ -37,11 +46,12 @@ export default class PrettierEditProvider {
     }
   }
 
-  provideDocumentRangeFormattingEdits (document, range) {
+  provideDocumentRangeFormattingEdits(document, range) {
     return this.format(document, range);
   }
 
-  provideDocumentFormattingEdits (document) {
+  async provideDocumentFormattingEdits(document) {
+    await getModifiedLines(document, this.getBasePath(document));
     return this.format(document);
   }
 };
