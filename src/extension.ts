@@ -9,8 +9,6 @@ const langs = [
 ];
 
 export function activate(context: vscode.ExtensionContext) {
-	console.log('Extension "prettier-format-modified-lines" is now active');
-
   const editProvider = new EditProvider();
   context.subscriptions.push(
     vscode.languages.registerDocumentRangeFormattingEditProvider(langs, editProvider)
