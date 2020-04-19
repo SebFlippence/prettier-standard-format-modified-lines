@@ -29,9 +29,20 @@ To enable, add the follow to your editors or workspaces `settings.json`.
 }
 ```
 
+## Manual Installation
+
+```bash
+cd ~/.vscode/extensions
+git clone https://github.com/sebflipper/prettier-standard-format-modified-lines.git sebflipper.prettier-standard-format-modified-lines
+cd sebflipper.prettier-standard-format-modified-lines
+yarn install
+yarn compile
+```
+
 ## Known Issues
 
-Currently only works on Mac or Linux.
+* Requires manual extension installation.
+* Only works on Mac or Linux.
 
 ## Release Notes
 
