@@ -1,8 +1,8 @@
-import { workspace, window, Range, TextEdit } from 'vscode';
-import { format, resolveConfig } from 'prettier';
+import childProcess from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
-import { getPrettierParser } from './language-map';
-import { getModifiedLines } from './diffs';
+import { workspace, window, Range, TextEdit } from 'vscode';
 
 function fullDocumentRange(document) {
   const lastLineId = document.lineCount - 1;
@@ -10,35 +10,25 @@ function fullDocumentRange(document) {
 }
 
 export default class PrettierEditProvider {
-  getBasePath(document) {
+  getBasePath() {
     const { uri } = (workspace.workspaceFolders || [])[0] || {};
     if (uri && uri.scheme === 'file') {
       return uri.fsPath;
     };
   }
 
-  getConfigPath(document) {
-    if (!document.isUntitled) {
-      return document.fileName;
-    };
-    return this.getBasePath(document);
-  }
-
-  getConfig(document) {
-    const opts = { editorconfig: true, useCache: false };
-    const path = this.getConfigPath(document);
-    const config = (path && resolveConfig.sync(path, opts)) || {};
-    config.filepath = '(stdin)';
-    config.parser = getPrettierParser(document.languageId);
-    config.singleQuote = true;
-    return config;
-  }
-
-  format(document, range) {
+  format(document) {
     try {
-      const text = range ? document.getText(range) : document.getText();
-      const newText = format(text, this.getConfig(document));
-      return [TextEdit.replace(range || fullDocumentRange(document), newText)];
+      const basePath = this.getBasePath(document);
+      const docRelativePath = document.fileName.replace(basePath, '').substring(1);
+      var name = path.basename(document.fileName);
+
+      childProcess.execSync(`cp -f ${document.fileName} /tmp/${name}.bak`);
+      childProcess.execSync(`${__dirname}/../node_modules/.bin/prettier-standard --lines ${docRelativePath}`, { cwd: basePath });
+      const newText = fs.readFileSync(document.fileName, 'utf8');
+      childProcess.execSync(`mv -f /tmp/${name}.bak ${document.fileName}`);
+
+      return [TextEdit.replace(fullDocumentRange(document), newText)];
     } catch (e) {
       console.error(e);
       window.showErrorMessage(e.message);
@@ -47,11 +37,10 @@ export default class PrettierEditProvider {
   }
 
   provideDocumentRangeFormattingEdits(document, range) {
-    return this.format(document, range);
+    return this.format(document);
   }
 
   async provideDocumentFormattingEdits(document) {
-    await getModifiedLines(document, this.getBasePath(document));
     return this.format(document);
   }
 };
