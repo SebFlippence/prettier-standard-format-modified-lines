@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 
 import { workspace, window, Range, TextEdit, TextDocument } from 'vscode';
+// @ts-ignore
 import { format, resolveConfig } from 'prettier-standard';
 
 import { getPrettierParser } from './language-map';
