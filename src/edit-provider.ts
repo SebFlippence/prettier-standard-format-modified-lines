@@ -39,9 +39,9 @@ export default class PrettierEditProvider {
 
   provideDocumentRangeFormattingEdits(document: TextDocument, range: Range) {
     try {
-      const text = range ? document.getText(range) : document.getText();
+      const text = document.getText(range);
       const newText = format(text, this.getConfig(document));
-      return [TextEdit.replace(range || fullDocumentRange(document), newText)];
+      return [TextEdit.replace(range, newText)];
     } catch (e) {
       console.error(e);
       window.showErrorMessage(e.message);
@@ -57,7 +57,7 @@ export default class PrettierEditProvider {
 
       childProcess.execSync(`cp -f ${document.fileName} /tmp/${name}.bak`);
       fs.writeFileSync(document.fileName, document.getText(), 'utf8');
-      childProcess.execSync(`${__dirname}/../node_modules/.bin/prettier-standard --lines ${docRelativePath}`, { cwd: basePath });
+      childProcess.execSync(`node ${__dirname}/../node_modules/prettier-standard/src/cli.js --lines ${docRelativePath}`, { cwd: basePath });
       const newText = fs.readFileSync(document.fileName, 'utf8');
       childProcess.execSync(`mv -f /tmp/${name}.bak ${document.fileName}`);
 

@@ -43,13 +43,13 @@
   "scripts": {
     "vscode:package": "vsce package",
     "vscode:publish": "vsce publish",
-    "vscode:prepublish": "yarn run compile",
+    "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "lint": "eslint src --ext ts",
     "watch": "tsc -watch -p ./"
   },
   "dependencies": {
-    "prettier-standard": "^16.2.1"
+    "prettier-standard": "sebflipper/prettier-standard"
   },
   "devDependencies": {
     "@types/node": "^13.11.0",
