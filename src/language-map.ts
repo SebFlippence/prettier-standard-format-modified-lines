@@ -19,4 +19,12 @@ export const supportedLanguageIds = [
   'angular'
 ];
 
-export const getPrettierParser = (languageId: string) => (['javascript', 'javascriptreact'].includes(languageId)) ? 'babel' : languageId;
+export const getPrettierParser = (languageId: string) => {
+  if (['javascript', 'javascriptreact'].includes(languageId)) {
+    return 'babel';
+  }
+  if (['typescript', 'typescriptreact'].includes(languageId)) {
+    return 'typescript';
+  }
+  return languageId;
+};
