@@ -1,5 +1,7 @@
 # Prettier Standard - format modified lines
 
+**DEPRECATED** - this is now an intergrated feature since [Visual Studio Code v1.49](https://code.visualstudio.com/updates/v1_49#_only-format-modified-text).
+
 [Prettier Standard](https://github.com/sheerun/prettier-standard) - format modified lines. A [Visual Studio Code](https://code.visualstudio.com) formatter extension.
 
 ## Features
